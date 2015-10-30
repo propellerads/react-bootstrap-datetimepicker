@@ -61,9 +61,32 @@ export default class DateTimeField extends Component {
         left: -9999,
         zIndex: "9999 !important"
       },
-      viewDate: moment(this.props.dateTime, this.props.format, true).startOf("month"),
-      selectedDate: moment(this.props.dateTime, this.props.format, true),
-      inputValue: typeof this.props.defaultText !== "undefined" ? this.props.defaultText : moment(this.props.dateTime, this.props.format, true).format(this.resolvePropsInputFormat())
+      viewDate: this.initViewDate(),
+      selectedDate: this.initSelectedDate(),
+      inputValue: this.initInputValue()
+  }
+
+  initSelectedDate() {
+    const date = moment(this.props.dateTime, this.props.format, true);
+    return date.isValid() ? date : moment();
+  }
+
+  initViewDate() {
+    const date =  moment(this.props.dateTime, this.props.format, true);
+    return date.isValid() ? date.startOf("month") : moment().startOf("month");
+  }
+
+  initInputValue() {
+    const inputFormat = this.resolvePropsInputFormat();
+    const date = moment(this.props.dateTime, this.props.format, true);
+
+    if (typeof this.props.defaultText !== "undefined") {
+      return this.props.defaultText;
+    } else if (date.isValid()) {
+      return date.format(inputFormat)
+    }
+
+    return "";
   }
 
   componentWillReceiveProps = (nextProps) => {
@@ -81,8 +104,6 @@ export default class DateTimeField extends Component {
     return this.setState(state);
   }
 
-
-
   onChange = (event) => {
     const value = event.target == null ? event : event.target.value;
     if (moment(value, this.state.inputFormat, true).isValid()) {
@@ -95,9 +116,9 @@ export default class DateTimeField extends Component {
     return this.setState({
       inputValue: value
     }, function() {
-      return this.props.onChange(moment(this.state.inputValue, this.state.inputFormat, true).format(this.props.format), value);
+      const date = moment(this.state.inputValue, this.state.inputFormat, true);
+      return this.props.onChange(date.isValid() ? date.format(this.props.format) : null, value);
     });
-
   }
 
   getValue = () => {
@@ -377,8 +398,8 @@ export default class DateTimeField extends Component {
               <span className="input-group-addon" onBlur={this.onBlur} onClick={this.onClick} ref="dtpbutton">
                 <Glyphicon glyph={this.state.buttonIcon} />
               </span>
-            </div>
           </div>
+        </div>
     );
   }
 }
