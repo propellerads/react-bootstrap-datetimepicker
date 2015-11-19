@@ -277,6 +277,8 @@ export default class DateTimeField extends Component {
 
   onClick = () => {
     let classes, gBCR, offset, placePosition, scrollTop, styles;
+    const calendarPanelWidth = 250;
+
     if (this.state.showPicker) {
       return this.closePicker();
     } else {
@@ -299,20 +301,26 @@ export default class DateTimeField extends Component {
         offset.top = -this.refs.widget.getDOMNode().offsetHeight - this.getDOMNode().clientHeight - 2;
         classes.top = true;
         classes.bottom = false;
-        classes["pull-right"] = true;
       } else {
         offset.top = 40;
         classes.top = false;
         classes.bottom = true;
-        classes["pull-right"] = true;
       }
+
       styles = {
         display: "block",
         position: "absolute",
-        top: offset.top,
-        left: "auto",
-        right: 40
+        top: offset.top
       };
+
+      if (offset.left - calendarPanelWidth < 0) {
+        styles.left = offset.left;
+        classes["pull-left"] = true;
+      } else {
+        classes["pull-right"] = true;
+      }
+
+
       return this.setState({
         widgetStyle: styles,
         widgetClasses: classes
@@ -359,7 +367,7 @@ export default class DateTimeField extends Component {
 
   render() {
     return (
-          <div>
+          <div style={{position: 'relative'}}>
             {this.renderOverlay()}
             <DateTimePicker
                   addDecade={this.addDecade}
